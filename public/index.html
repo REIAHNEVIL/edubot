@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 Timer Dashboard</title>
+  <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS -->
+</head>
+<body>
+  <!-- Main heading -->
+  <h1>Study With Me Timer</h1>
+
+  <!-- Timer display -->
+  <div class="timer" id="timer">00:00</div>
+
+  <!-- Counter display -->
+  <div class="counter" id="counter">Time Distracted: 0 seconds</div>
+
+  <!-- Button -->
+  <div class="button-container">
+    <button class="button">YOU CAN DO IT!</button>
+  </div>
+
+  <script>
+    const timerElement = document.getElementById('timer');
+    const counterElement = document.getElementById('counter');
+
+    // Function to format time as mm:ss
+    function formatTime(minutes, seconds) {
+      return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    // Connect to the SSE endpoint
+    const eventSource = new EventSource('/events');
+    eventSource.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+
+      // Update the timer display
+      const minutes = data.minutes || 0;
+      const seconds = data.seconds || 0;
+      const counter = data.counter || 0;
+
+      timerElement.textContent = formatTime(minutes, seconds);
+      counterElement.textContent = `Time Distracted: ${counter} seconds`;
+    };
+
+    eventSource.onerror = () => {
+      console.error('Error connecting to the server.');
+    };
+  </script>
+</body>
+</html>
